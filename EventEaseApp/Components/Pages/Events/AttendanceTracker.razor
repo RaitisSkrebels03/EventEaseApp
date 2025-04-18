@@ -1,0 +1,90 @@
+﻿@page "/attendance-native"
+@using EventEaseApp.Models
+@using System.Text.Json;
+@inject IJSRuntime JS
+
+<h3>Attendance Tracker (Native JS via C#)</h3>
+
+<input @bind="newName" placeholder="Enter name..." class="form-control mb-2" />
+<button class="btn btn-primary mb-3" @onclick="Register">Register</button>
+
+@if (attendees.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Attended</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var person in attendees)
+            {
+                <tr>
+                    <td>@person.Name</td>
+                    <td>@(person.Attended ? "Yes!" : "No!")</td>
+                    <td>
+                        @if (!person.Attended)
+                        {
+                            <button class="btn btn-success btn-sm" @onclick="() => MarkAsAttended(person.Name)">Mark</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button class="btn btn-danger mt-3" @onclick="ClearAll">Clear All</button>
+}
+else
+{
+    <p>No attendees yet.</p>
+}
+
+@code {
+    private string newName = string.Empty;
+    private List<AttendeeModel> attendees = new();
+    private const string storageKey = "attendees";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var json = await JS.InvokeAsync<string>("localStorage.getItem", storageKey);
+        if (!string.IsNullOrEmpty(json))
+        {
+            attendees = JsonSerializer.Deserialize<List<AttendeeModel>>(json) ?? new();
+        }
+    }
+
+    private async Task Register()
+    {
+        if (!string.IsNullOrWhiteSpace(newName))
+        {
+            attendees.Add(new AttendeeModel { Name = newName });
+            newName = string.Empty;
+            await Save();
+        }
+    }
+
+    private async Task MarkAsAttended(string name)
+    {
+        var person = attendees.FirstOrDefault(p => p.Name == name);
+        if (person != null)
+        {
+            person.Attended = true;
+            await Save();
+        }
+    }
+
+    private async Task Save()
+    {
+        var json = JsonSerializer.Serialize(attendees);
+        await JS.InvokeVoidAsync("localStorage.setItem", storageKey, json);
+    }
+
+    private async Task ClearAll()
+    {
+        attendees.Clear();
+        await JS.InvokeVoidAsync("localStorage.removeItem", storageKey);
+    }
+}
