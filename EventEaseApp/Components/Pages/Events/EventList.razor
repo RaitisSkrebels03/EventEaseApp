@@ -1,0 +1,40 @@
+﻿@page "/events"
+@using EventEaseApp.Models
+@inject NavigationManager Navigation
+
+<h3>Upcoming Events</h3>
+
+@if (Events == null || !Events.Any())
+{
+    <p>No upcoming events.</p>
+}
+else
+{
+    <NavLink class="nav-link" href="@($"/events/create")">Create new event</NavLink>
+    @foreach (var ev in Events)
+    {
+         <div class="card mb-3">
+            <div class="card-body">
+               <h4 class="card-title">@ev.Name</h4>
+               <p class="card-text"><strong>Date:</strong> @ev.Date.ToString("MMMM dd, yyyy")</p>
+                <p class="card-text"><strong>Location:</strong> @ev.Location</p>
+                <NavLink class="nav-link" href="@($"/events/{ev.Id}")">ViewDetails</NavLink>
+            </div>
+         </div>
+    }
+}
+
+@code {
+    private List<EventModel> Events = new()
+    {
+        new() { Id = 1, Name = "Corporate Gala", Date = new DateTime(2025, 5, 12), Location = "New York" },
+        new() { Id = 2, Name = "Tech Conference", Date = new DateTime(2025, 6, 5), Location = "San Francisco" },
+        new() { Id = 3, Name = "Charity Ball", Date = new DateTime(2025, 7, 21), Location = "Chicago" }
+    };
+
+    private void ViewDetails(int Id)
+    {
+        Navigation.NavigateTo($"/events/{Id}");
+    }
+}
+

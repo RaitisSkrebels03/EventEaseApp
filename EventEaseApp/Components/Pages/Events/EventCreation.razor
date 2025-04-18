@@ -1,0 +1,63 @@
+﻿@page "/events/create"
+@using EventEaseApp.Models
+@using System.ComponentModel.DataAnnotations
+@rendermode InteractiveServer
+
+<h3>Event Registration</h3>
+
+@if (isSubmitted)
+{
+    <div class="alert alert-success" role="alert">
+        Event created successfully! Thank you!
+    </div>
+}
+else
+{
+    <EditForm FormName="EventCreation" Model="@Event" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <InputText id="name" class="form-control" @bind-Value="Event.Name" />
+            <ValidationMessage For="@(() => Event.Name)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="date" class="form-label">Date</label>
+            <InputDate id="date" class="form-control" @bind-Value="Event.Date" />
+            <ValidationMessage For="@(() => Event.Date)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="location" class="form-label">Location</label>
+            <InputText id="location" class="form-control" @bind-Value="Event.Location" />
+            <ValidationMessage For="@(() => Event.Location)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <InputTextArea id="description" class="form-control" @bind-Value="Event.Description" />
+            <ValidationMessage For="@(() => Event.Description)" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create</button>
+    </EditForm>
+
+    <button class="btn btn-secondary me-2" href="/events">Back to Events</button>
+}
+
+@code {
+    private EventModel Event = new();
+    private bool isSubmitted = false;
+
+
+    private async Task HandleValidSubmit()
+    {
+        isSubmitted = true;
+
+        // Simulate saving to database or sending confirmation email
+        await Task.Delay(2000);
+        Navigation.NavigateTo("/events");
+    }
+}

@@ -1,0 +1,74 @@
+﻿@page "/events/register"
+@using EventEaseApp.Models
+@using System.ComponentModel.DataAnnotations
+@rendermode InteractiveServer
+
+
+<h3>Event Registration</h3>
+
+@if (isSubmitted)
+{
+    <div class="alert alert-success" role="alert">
+        Registration successful! Thank you, @registration.FirstName.
+    </div>
+}
+else
+{
+    <EditForm FormName="registration" Model="@registration" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label for="firstName" class="form-label">First Name</label>
+            <InputText id="firstName" class="form-control" @bind-Value="registration.FirstName" />
+            <ValidationMessage For="@(() => registration.FirstName)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="lastName" class="form-label">Last Name</label>
+            <InputText id="lastName" class="form-control" @bind-Value="registration.LastName" />
+            <ValidationMessage For="@(() => registration.LastName)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <InputText id="email" class="form-control" @bind-Value="registration.Email" />
+            <ValidationMessage For="@(() => registration.Email)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="eventName" class="form-label">Event</label>
+            <InputSelect id="eventName" class="form-select" @bind-Value="registration.EventId">
+                <option value="">-- Select Event --</option>
+                @foreach (var ev in AvailableEvents)
+                {
+                    <option value="@ev.Id">@ev.Name (@ev.Date.ToShortDateString())</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => registration.EventId)" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Register</button>
+    </EditForm>
+}
+
+@code {
+    private EventRegistrationModel registration = new();
+    private bool isSubmitted = false;
+
+    private List<EventModel> AvailableEvents = new()
+    {
+        new() { Id = 1, Name = "Corporate Gala", Date = new DateTime(2025, 5, 12) },
+        new() { Id = 2, Name = "Tech Conference", Date = new DateTime(2025, 6, 5) },
+        new() { Id = 3, Name = "Charity Ball", Date = new DateTime(2025, 7, 21) }
+    };
+
+    private async Task HandleValidSubmit()
+    {
+        isSubmitted = true;
+
+        // Simulate saving to database or sending confirmation email
+        await Task.Delay(2000);
+        Navigation.NavigateTo("/events");
+    }
+}
